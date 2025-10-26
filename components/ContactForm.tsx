@@ -5,61 +5,65 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Phone, Mail, MapPin, Send } from 'lucide-react';
-// import { toast } from 'sonner';
-// import axios from 'axios';
-
-// const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export const ContactForm = () => {
-	// const [formData, setFormData] = useState({
-	// 	name: '',
-	// 	email: '',
-	// 	phone: '',
-	// 	propertyType: '',
-	// 	message: '',
-	// });
+	const [formData, setFormData] = useState({
+		name: '',
+		email: '',
+		phone: '',
+		propertyType: '',
+		message: '',
+	});
 
-	// const [isSubmitting, setIsSubmitting] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	// const handleChange = (e) => {
-	// 	const { name, value } = e.target;
-	// 	setFormData((prev) => ({
-	// 		...prev,
-	// 		[name]: value,
-	// 	}));
-	// };
+	const handleChange = (e: { target: { name: string; value: string } }) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({
+			...prev,
+			[name]: value,
+		}));
+	};
 
-	// const handleSubmit = async (e) => {
-	// 	e.preventDefault();
-	// 	setIsSubmitting(true);
+	// Form format message
+	const formatMessage = (obj: { name: string; email: string; phone: string; property_type: string; message: string }) => {
+		return `Data Customer
+    			Nama: ${obj.name}
+    			Email: ${obj.email}
+    			No Hp: ${obj.phone}
+				Tipe Properti: ${obj.property_type}
+				Pesan: ${obj.message}
+    			`;
+	};
 
-	// 	try {
-	// 		const response = await axios.post(`${BACKEND_URL}/api/contact`, {
-	// 			name: formData.name,
-	// 			email: formData.email,
-	// 			phone: formData.phone,
-	// 			property_type: formData.propertyType,
-	// 			message: formData.message,
-	// 		});
+	const handleSubmit = async (e: { preventDefault: () => void }) => {
+		e.preventDefault();
+		setIsSubmitting(true);
 
-	// 		if (response.data.success) {
-	// 			toast.success(response.data.message);
-	// 			setFormData({
-	// 				name: '',
-	// 				email: '',
-	// 				phone: '',
-	// 				propertyType: '',
-	// 				message: '',
-	// 			});
-	// 		}
-	// 	} catch (error) {
-	// 		const errorMessage = error.response?.data?.detail || 'Terjadi kesalahan. Silakan coba lagi.';
-	// 		toast.error(errorMessage);
-	// 		console.error('Contact form error:', error);
-	// 	} finally {
-	// 		setIsSubmitting(false);
-	// 	}
-	// };
+		const ObjData = {
+			name: formData.name,
+			email: formData.email,
+			phone: formData.phone,
+			property_type: formData.propertyType,
+			message: formData.message,
+		};
+
+		const sendData = formatMessage(ObjData);
+		window.open('http://wa.me/6287855231283?text=' + encodeURIComponent(sendData));
+
+		toast.success('Pesan Berhasil Dikirim.');
+		setFormData({
+			name: '',
+			email: '',
+			phone: '',
+			propertyType: '',
+			message: '',
+		});
+
+		setIsSubmitting(false);
+	};
 
 	return (
 		<section
@@ -110,13 +114,17 @@ export const ContactForm = () => {
 					<div className='lg:col-span-2'>
 						<Card className='border-2 border-slate-200'>
 							<CardContent className='p-8'>
-								<form className='space-y-6'>
+								<form
+									className='space-y-6'
+									onSubmit={handleSubmit}>
 									<div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
 										<div>
 											<label className='block text-sm font-medium text-slate-900 mb-2'>Nama Lengkap *</label>
 											<Input
 												type='text'
 												name='name'
+												value={formData.name}
+												onChange={handleChange}
 												placeholder='Masukkan nama Anda'
 												required
 												className='w-full'
@@ -127,6 +135,8 @@ export const ContactForm = () => {
 											<Input
 												type='email'
 												name='email'
+												value={formData.email}
+												onChange={handleChange}
 												placeholder='email@contoh.com'
 												required
 												className='w-full'
@@ -140,6 +150,8 @@ export const ContactForm = () => {
 											<Input
 												type='tel'
 												name='phone'
+												value={formData.phone}
+												onChange={handleChange}
 												placeholder='08123456789'
 												required
 												className='w-full'
@@ -149,6 +161,8 @@ export const ContactForm = () => {
 											<label className='block text-sm font-medium text-slate-900 mb-2'>Jenis Properti *</label>
 											<select
 												name='propertyType'
+												value={formData.propertyType}
+												onChange={handleChange}
 												required
 												className='w-full h-10 px-3 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500'>
 												<option value=''>Pilih jenis properti</option>
@@ -164,6 +178,8 @@ export const ContactForm = () => {
 										<label className='block text-sm font-medium text-slate-900 mb-2'>Pesan *</label>
 										<Textarea
 											name='message'
+											value={formData.message}
+											onChange={handleChange}
 											placeholder='Ceritakan kebutuhan properti Anda...'
 											required
 											rows={5}
@@ -173,10 +189,9 @@ export const ContactForm = () => {
 
 									<Button
 										type='submit'
-										// disabled={isSubmitting}
+										disabled={isSubmitting}
 										className='w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6 text-lg'>
-										{/* {isSubmitting ? 'Mengirim...' : 'Kirim Pesan'} */}
-										Kirim Pesan
+										{isSubmitting ? 'Mengirim...' : 'Kirim Pesan'}
 										<Send className='ml-2 w-5 h-5' />
 									</Button>
 								</form>
